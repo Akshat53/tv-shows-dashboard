@@ -35,7 +35,7 @@ import {
 } from '@mui/icons-material';
 import ShowDetailsModal from './ShowDetailsModal';
 import LoadingIndicator from './LoadingIndicator';
-import { Show, MainContentProps } from '../types';
+import { Show, MainContentProps, StatusBadgeProps } from '../types';
 
 // Styled Components
 const StyledTableCell = styled(TableCell)(() => ({

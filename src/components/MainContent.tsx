@@ -127,44 +127,7 @@ const PaginationButton = styled(Button)(({ active }: { active?: boolean }) => ({
   },
 }));
 
-const LoadingSkeleton = () => (
-  <>
-    {[...Array(5)].map((_, index) => (
-      <TableRow key={index}>
-        <StyledTableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Skeleton variant="rounded" width={40} height={40} />
-            <Skeleton width={150} height={24} />
-          </Box>
-        </StyledTableCell>
-        <StyledTableCell>
-          <Skeleton width={80} height={24} />
-        </StyledTableCell>
-        <StyledTableCell>
-          <Skeleton width={70} height={24} />
-        </StyledTableCell>
-        <StyledTableCell>
-          <Skeleton variant="rounded" width={90} height={32} />
-        </StyledTableCell>
-        <StyledTableCell>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Skeleton variant="rounded" width={70} height={28} />
-            <Skeleton variant="rounded" width={70} height={28} />
-          </Box>
-        </StyledTableCell>
-        <StyledTableCell>
-          <Skeleton width={60} height={24} />
-        </StyledTableCell>
-        <StyledTableCell align="right">
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Skeleton variant="circular" width={32} height={32} />
-            <Skeleton variant="circular" width={32} height={32} />
-          </Box>
-        </StyledTableCell>
-      </TableRow>
-    ))}
-  </>
-);
+
 
 const EmptyState = () => (
   <Box sx={{ py: 8, textAlign: 'center' }}>
@@ -188,7 +151,7 @@ const MainContent: React.FC<MainContentProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedShowForModal, setSelectedShowForModal] = useState<Show | null>(null);
-  const rowsPerPage = 10;
+  
 
   useEffect(() => {
     const fetchShows = async () => {

@@ -36,7 +36,7 @@ import LoadingIndicator from './LoadingIndicator';
 import { Show, MainContentProps } from '../types';
 
 // Styled Components
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(({  }) => ({
   padding: '16px 20px',
   borderBottom: '1px solid #e2e8f0',
   '&.MuiTableCell-head': {
@@ -104,7 +104,7 @@ const GenreChip = styled('span')({
   },
 });
 
-const ActionButton = styled(IconButton)(({ theme }) => ({
+const ActionButton = styled(IconButton)(({  }) => ({
   width: 34,
   height: 34,
   borderRadius: 8,

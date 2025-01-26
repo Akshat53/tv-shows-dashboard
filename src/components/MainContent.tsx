@@ -1,3 +1,4 @@
+// src/components/MainContent.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -17,11 +18,7 @@ import {
   InputAdornment,
   Tooltip,
   Alert,
-  Fade,
   Paper,
-  Chip,
-  Badge,
-  alpha,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -35,22 +32,17 @@ import {
   ChevronRight as ChevronRightIcon,
   InsertDriveFile as EmptyIcon,
   RefreshOutlined as RefreshIcon,
-  Star as StarIcon,
 } from '@mui/icons-material';
-import { Show, MainContentProps } from '../types';
-import { colors, shadows, transitions } from '../theme/constants';
 import ShowDetailsModal from './ShowDetailsModal';
 import LoadingIndicator from './LoadingIndicator';
-import '../styles/animations.css';
+import { Show, MainContentProps } from '../types';
 
 // Styled Components
-const StyledTableCell = styled(TableCell)(({  }) => ({
+const StyledTableCell = styled(TableCell)(() => ({
   padding: '16px 20px',
-  borderBottom: `1px solid ${colors.border}`,
-  transition: transitions.default,
+  borderBottom: '1px solid #e2e8f0',
   '&.MuiTableCell-head': {
-    backgroundColor: colors.background.paper,
-    backdropFilter: 'blur(8px)',
+    backgroundColor: '#ffffff',
     fontSize: '13px',
     fontWeight: 600,
     color: '#64748b',
@@ -68,62 +60,40 @@ const StyledTableCell = styled(TableCell)(({  }) => ({
   },
 }));
 
-const StyledTableRow = styled(TableRow)({
-  transition: transitions.default,
-  '&:hover': {
-    backgroundColor: alpha(colors.background.paper, 0.8),
-    transform: 'scale(1.001)',
-    '& .row-actions': {
-      opacity: 1,
-      transform: 'translateX(0)',
-    },
-  },
-});
-
-const StatusChip = styled(Chip)<{ status: string }>(({ status }) => ({
+const StatusBadge = styled('div')<StatusBadgeProps>(({ status }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '6px 12px',
   borderRadius: '20px',
   fontSize: '13px',
   fontWeight: 600,
-  height: '28px',
-  transition: transitions.default,
-  ...(status === 'Running' && {
-    backgroundColor: colors.status.running.bg,
-    color: colors.status.running.text,
-    border: `1px solid ${colors.status.running.border}`,
-    '&:hover': {
-      backgroundColor: colors.status.running.hover,
-    },
-  }),
-  ...(status === 'Ended' && {
-    backgroundColor: colors.status.ended.bg,
-    color: colors.status.ended.text,
-    border: `1px solid ${colors.status.ended.border}`,
-    '&:hover': {
-      backgroundColor: colors.status.ended.hover,
-    },
-  }),
-  ...(status === 'To Be Determined' && {
-    backgroundColor: colors.status.tbd.bg,
-    color: colors.status.tbd.text,
-    border: `1px solid ${colors.status.tbd.border}`,
-    '&:hover': {
-      backgroundColor: colors.status.tbd.hover,
-    },
+  lineHeight: 1,
+  width: 'fit-content',
+  ...(status === 'Running' ? {
+    backgroundColor: '#ecfdf5',
+    color: '#059669',
+    border: '1px solid #a7f3d0',
+  } : {
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
   }),
 }));
 
-const GenreChip = styled(Chip)({
+const GenreChip = styled('span')({
+  display: 'inline-block',
+  padding: '4px 12px',
   borderRadius: '16px',
   fontSize: '13px',
-  height: '24px',
-  backgroundColor: colors.genre.bg,
-  color: colors.genre.text,
-  border: `1px solid ${colors.genre.border}`,
-  transition: transitions.default,
+  backgroundColor: '#f8fafc',
+  color: '#3b82f6',
+  border: '1px solid #e2e8f0',
+  marginRight: '6px',
+  marginBottom: '4px',
+  transition: 'all 0.2s',
   '&:hover': {
-    backgroundColor: colors.genre.hover,
-    borderColor: colors.genre.hoverBorder,
-    transform: 'translateY(-1px)',
+    backgroundColor: '#f0f9ff',
+    borderColor: '#93c5fd',
   },
 });
 
@@ -132,97 +102,29 @@ const ActionButton = styled(IconButton)({
   height: 34,
   borderRadius: 8,
   marginLeft: 8,
-  backgroundColor: colors.background.paper,
-  transition: transitions.default,
+  backgroundColor: '#f8fafc',
   '&:hover': {
-    backgroundColor: alpha(colors.primary.main, 0.1),
-    transform: 'translateY(-1px)',
-    boxShadow: shadows.sm,
+    backgroundColor: '#f1f5f9',
   },
 });
-
-const PaginationButton = styled(Button)<{ active?: boolean }>(({ active }) => ({
-  minWidth: '40px',
-  height: '40px',
-  padding: 0,
-  borderRadius: '10px',
-  color: active ? '#ffffff' : '#64748b',
-  backgroundColor: active ? colors.primary.main : 'transparent',
-  transition: transitions.default,
-  '&:hover': {
-    backgroundColor: active ? colors.primary.dark : alpha(colors.primary.main, 0.1),
-    transform: 'translateY(-1px)',
-  },
-}));
-
-const SearchField = styled(TextField)({
-  '& .MuiOutlinedInput-root': {
-    borderRadius: '12px',
-    backgroundColor: colors.background.paper,
-    transition: transitions.default,
-    '&:hover': {
-      backgroundColor: '#ffffff',
-      boxShadow: shadows.sm,
-    },
-    '&.Mui-focused': {
-      backgroundColor: '#ffffff',
-      boxShadow: shadows.md,
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: colors.primary.main,
-        borderWidth: '2px',
-      },
-    },
-  },
-});
-
-// Empty State Component
-const EmptyState: React.FC = () => (
-  <Box sx={{ 
-    py: 8, 
-    textAlign: 'center',
-    animation: 'fadeIn 0.5s ease-out'
-  }}>
-    <EmptyIcon sx={{ 
-      fontSize: 48, 
-      color: '#94a3b8', 
-      mb: 2,
-      animation: 'float 3s ease-in-out infinite'
-    }} />
-    <Typography variant="h6" sx={{ color: '#475569', mb: 1, fontWeight: 600 }}>
-      No shows found
-    </Typography>
-    <Typography variant="body2" sx={{ color: '#64748b', maxWidth: 300, mx: 'auto' }}>
-      Try adjusting your search or filters to find what you're looking for.
-    </Typography>
-  </Box>
-);
 
 const MainContent: React.FC<MainContentProps> = ({
   onShowSelect,
   handleDrawerToggle,
 }) => {
   const [shows, setShows] = useState<Show[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [page, setPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedShowForModal, setSelectedShowForModal] = useState<Show | null>(null);
-  const [totalResults, setTotalResults] = useState<number>(0);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/services';
-
-  const fetchShows = async (): Promise<void> => {
+  const fetchShows = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/shows?page=${page}`, {
-        headers: {
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        },
-      });
+      const response = await fetch(`/services/shows?page=${page}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch shows (HTTP ${response.status})`);
@@ -230,7 +132,6 @@ const MainContent: React.FC<MainContentProps> = ({
       
       const data = await response.json();
       setShows(data);
-      setTotalResults(data.length);
     } catch (error) {
       console.error('Error fetching shows:', error);
       setError('Unable to fetch shows. Please try again later.');
@@ -248,79 +149,47 @@ const MainContent: React.FC<MainContentProps> = ({
     show.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handlePageChange = (newPage: number): void => {
+  const handlePageChange = (newPage: number) => {
     setPage(newPage);
     setCurrentPage(newPage + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        bgcolor: colors.background.main,
-        backgroundImage: colors.background.gradient,
-        minWidth: 0,
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
+    <Box sx={{ 
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      bgcolor: '#f8fafc',
+      minWidth: 0,
+    }}>
       {/* Header */}
-      <Paper
-        elevation={0}
-        sx={{
-          px: 4,
-          py: 3,
-          backgroundColor: colors.background.paper,
-          backdropFilter: 'blur(8px)',
-          borderBottom: `1px solid ${colors.border}`,
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
+      <Box sx={{ 
+        px: 4, 
+        py: 3,
+        backgroundColor: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <IconButton
               onClick={handleDrawerToggle}
-              sx={{ 
-                display: { xs: 'flex', lg: 'none' },
-                transition: transitions.default,
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                }
-              }}
+              sx={{ display: { xs: 'flex', lg: 'none' } }}
             >
               <MenuIcon />
             </IconButton>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 700,
-                  background: colors.primary.gradient,
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  color: 'transparent',
-                  textShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                TV Shows
-              </Typography>
-              <Badge
-                badgeContent={totalResults}
-                color="primary"
-                sx={{
-                  '& .MuiBadge-badge': {
-                    fontSize: '12px',
-                    height: '20px',
-                    minWidth: '20px',
-                    borderRadius: '10px',
-                  }
-                }}
-              />
-            </Box>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 600,
+                background: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                color: 'transparent',
+              }}
+            >
+              TV Shows
+            </Typography>
           </Box>
           <Button
             variant="contained"
@@ -329,35 +198,19 @@ const MainContent: React.FC<MainContentProps> = ({
               textTransform: 'none',
               borderRadius: '12px',
               px: 3,
-              py: 1,
-              background: colors.primary.gradient,
-              boxShadow: shadows.md,
-              transition: transitions.default,
+              bgcolor: '#3b82f6',
               '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: shadows.lg,
-              },
-              '&:active': {
-                transform: 'translateY(-1px)',
+                bgcolor: '#2563eb',
               },
             }}
           >
             Add Show
           </Button>
         </Box>
-        <Typography 
-          variant="body2" 
-          sx={{ 
-            color: 'text.secondary',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-          }}
-        >
-          <StarIcon sx={{ fontSize: 16, color: colors.primary.main }} />
-          Discover and manage your favorite TV shows
+        <Typography variant="body2" color="text.secondary">
+          Manage your TV show collection
         </Typography>
-      </Paper>
+      </Box>
 
       {/* Search and Filters */}
       <Box sx={{ 
@@ -366,7 +219,7 @@ const MainContent: React.FC<MainContentProps> = ({
         gap: 2,
         flexWrap: { xs: 'wrap', sm: 'nowrap' },
       }}>
-        <SearchField
+        <TextField
           placeholder="Search shows..."
           size="small"
           fullWidth
@@ -374,6 +227,10 @@ const MainContent: React.FC<MainContentProps> = ({
           onChange={(e) => setSearchQuery(e.target.value)}
           sx={{
             maxWidth: { sm: '400px' },
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '12px',
+              backgroundColor: '#ffffff',
+            },
           }}
           InputProps={{
             startAdornment: (
@@ -390,15 +247,11 @@ const MainContent: React.FC<MainContentProps> = ({
             sx={{
               textTransform: 'none',
               borderRadius: '12px',
-              borderColor: colors.border,
+              borderColor: '#e2e8f0',
               color: '#64748b',
-              backgroundColor: colors.background.paper,
-              transition: transitions.default,
               '&:hover': {
-                borderColor: colors.primary.main,
+                borderColor: '#3b82f6',
                 backgroundColor: '#ffffff',
-                transform: 'translateY(-1px)',
-                boxShadow: shadows.sm,
               },
             }}
           >
@@ -410,15 +263,11 @@ const MainContent: React.FC<MainContentProps> = ({
             sx={{
               textTransform: 'none',
               borderRadius: '12px',
-              borderColor: colors.border,
+              borderColor: '#e2e8f0',
               color: '#64748b',
-              backgroundColor: colors.background.paper,
-              transition: transitions.default,
               '&:hover': {
-                borderColor: colors.primary.main,
+                borderColor: '#3b82f6',
                 backgroundColor: '#ffffff',
-                transform: 'translateY(-1px)',
-                boxShadow: shadows.sm,
               },
             }}
           >
@@ -427,7 +276,7 @@ const MainContent: React.FC<MainContentProps> = ({
         </Box>
       </Box>
 
-      {/* Table Container */}
+      {/* Content Area */}
       <Paper
         elevation={0}
         sx={{
@@ -436,12 +285,10 @@ const MainContent: React.FC<MainContentProps> = ({
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          bgcolor: colors.background.paper,
+          bgcolor: '#ffffff',
           borderRadius: '16px',
-          border: `1px solid ${colors.border}`,
+          border: '1px solid #e2e8f0',
           overflow: 'hidden',
-          backdropFilter: 'blur(8px)',
-          boxShadow: shadows.sm,
         }}
       >
         {loading ? (
@@ -450,259 +297,222 @@ const MainContent: React.FC<MainContentProps> = ({
           <Box sx={{ p: 3 }}>
             <Alert 
               severity="error" 
-              sx={{
-                borderRadius: '12px',
-                '& .MuiAlert-icon': {
-                  color: '#ef4444'
-                }
-              }}
               action={
                 <Button
-                  color="error"
+                  color="inherit"
                   size="small"
                   startIcon={<RefreshIcon />}
                   onClick={fetchShows}
-                  sx={{
-                    borderRadius: '8px',
-                    transition: transitions.default,
-                    '&:hover': {
-                      transform: 'translateY(-1px)',
-                    },}}
-                    >
-                      Retry
-                    </Button>
-                  }
                 >
-                  {error}
-                </Alert>
-              </Box>
-            ) : (
-              <Fade in={!loading}>
-                <Box>
-                  <TableContainer>
-                    <Table stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          <StyledTableCell>Show Name</StyledTableCell>
-                          <StyledTableCell>Type</StyledTableCell>
-                          <StyledTableCell>Language</StyledTableCell>
-                          <StyledTableCell>Status</StyledTableCell>
-                          <StyledTableCell>Genres</StyledTableCell>
-                          <StyledTableCell>Official Site</StyledTableCell>
-                          <StyledTableCell align="right">Actions</StyledTableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {filteredShows.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={7}>
-                              <EmptyState />
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          filteredShows.map((show) => (
-                            <StyledTableRow
-                              key={show.id}
-                              hover
+                  Retry
+                </Button>
+              }
+            >
+              {error}
+            </Alert>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <TableContainer sx={{ flex: 1 }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell>Show Name</StyledTableCell>
+                    <StyledTableCell>Type</StyledTableCell>
+                    <StyledTableCell>Language</StyledTableCell>
+                    <StyledTableCell>Status</StyledTableCell>
+                    <StyledTableCell>Genres</StyledTableCell>
+                    <StyledTableCell>Official Site</StyledTableCell>
+                    <StyledTableCell align="right">Actions</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredShows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7}>
+                        <Box sx={{ py: 8, textAlign: 'center' }}>
+                          <EmptyIcon sx={{ fontSize: 48, color: '#94a3b8', mb: 2 }} />
+                          <Typography variant="h6" sx={{ color: '#475569', mb: 1, fontWeight: 600 }}>
+                            No shows found
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#64748b', maxWidth: 300, mx: 'auto' }}>
+                            Try adjusting your search or filters to find what you're looking for.
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredShows.map((show) => (
+                      <TableRow
+                        key={show.id}
+                        hover
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: '#f8fafc',
+                          },
+                        }}
+                      >
+                        <StyledTableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Avatar
+                              variant="rounded"
+                              src={show.image?.medium}
+                              sx={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: '8px',
+                              }}
                             >
-                              <StyledTableCell>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                  <Avatar
-                                    variant="rounded"
-                                    src={show.image?.medium}
-                                    sx={{
-                                      width: 40,
-                                      height: 40,
-                                      borderRadius: '8px',
-                                      boxShadow: shadows.sm,
-                                      transition: transitions.default,
-                                      '&:hover': {
-                                        transform: 'scale(1.05)',
-                                        boxShadow: shadows.md,
-                                      }
-                                    }}
-                                  >
-                                    {show.name[0]}
-                                  </Avatar>
-                                  <Box>
-                                    <Typography sx={{ 
-                                      fontWeight: 500,
-                                      color: '#1e293b',
-                                      transition: transitions.default,
-                                      '&:hover': {
-                                        color: colors.primary.main,
-                                      }
-                                    }}>
-                                      {show.name}
-                                    </Typography>
-                                    {show.network && (
-                                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                        {show.network.name}
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                </Box>
-                              </StyledTableCell>
-                              <StyledTableCell>{show.type}</StyledTableCell>
-                              <StyledTableCell>{show.language}</StyledTableCell>
-                              <StyledTableCell>
-                                <StatusChip
-                                  label={show.status}
-                                  status={show.status}
-                                />
-                              </StyledTableCell>
-                              <StyledTableCell>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                  {show.genres.map((genre) => (
-                                    <GenreChip
-                                      key={genre}
-                                      label={genre}
-                                      size="small"
-                                    />
-                                  ))}
-                                </Box>
-                              </StyledTableCell>
-                              <StyledTableCell>
-                                {show.officialSite && (
-                                  <Link
-                                    href={show.officialSite}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    sx={{
-                                      color: colors.primary.main,
-                                      textDecoration: 'none',
-                                      fontWeight: 500,
-                                      transition: transitions.default,
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 0.5,
-                                      '&:hover': {
-                                        color: colors.primary.dark,
-                                        textDecoration: 'underline',
-                                        transform: 'translateY(-1px)',
-                                      },
-                                    }}
-                                  >
-                                    Visit Site
-                                  </Link>
-                                )}
-                              </StyledTableCell>
-                              <StyledTableCell align="right">
-                                <Box 
-                                  className="row-actions"
-                                  sx={{ 
-                                    display: 'flex',
-                                    justifyContent: 'flex-end',
-                                    opacity: 0.4,
-                                    transform: 'translateX(10px)',
-                                    transition: transitions.default,
-                                  }}
-                                >
-                                  <Tooltip title="Edit Show" arrow placement="top">
-                                    <ActionButton
-                                      onClick={() => onShowSelect(show)}
-                                      size="small"
-                                    >
-                                      <EditIcon sx={{ fontSize: 18 }} />
-                                    </ActionButton>
-                                  </Tooltip>
-                                  <Tooltip title="View Details" arrow placement="top">
-                                    <ActionButton
-                                      onClick={() => setSelectedShowForModal(show)}
-                                      size="small"
-                                    >
-                                      <VisibilityIcon sx={{ fontSize: 18 }} />
-                                    </ActionButton>
-                                  </Tooltip>
-                                </Box>
-                              </StyledTableCell>
-                            </StyledTableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-    
-                  {/* Pagination */}
-                  {!loading && filteredShows.length > 0 && (
-                    <Box
+                              {show.name[0]}
+                            </Avatar>
+                            <Typography sx={{ fontWeight: 500 }}>
+                              {show.name}
+                            </Typography>
+                          </Box>
+                        </StyledTableCell>
+                        <StyledTableCell>{show.type}</StyledTableCell>
+                        <StyledTableCell>{show.language}</StyledTableCell>
+                        <StyledTableCell>
+                          <StatusBadge status={show.status}>
+                            {show.status}
+                          </StatusBadge>
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                            {show.genres.map((genre) => (
+                              <GenreChip key={genre}>{genre}</GenreChip>
+                            ))}
+                          </Box>
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          {show.officialSite && (
+                            <Link
+                              href={show.officialSite}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                color: '#3b82f6',
+                                textDecoration: 'none',
+                                fontWeight: 500,
+                                '&:hover': {
+                                  textDecoration: 'underline',
+                                },
+                              }}
+                            >
+                              Visit Site
+                            </Link>
+                          )}
+                        </StyledTableCell>
+                        <StyledTableCell align="right">
+                          <Tooltip title="Edit Show">
+                            <ActionButton
+                              onClick={() => onShowSelect(show)}
+                              size="small"
+                            >
+                              <EditIcon sx={{ fontSize: 18 }} />
+                            </ActionButton>
+                          </Tooltip>
+                          <Tooltip title="View Details">
+                            <ActionButton
+                              onClick={() => setSelectedShowForModal(show)}
+                              size="small"
+                            >
+                              <VisibilityIcon sx={{ fontSize: 18 }} />
+                            </ActionButton>
+                          </Tooltip>
+                        </StyledTableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
+            {filteredShows.length > 0 && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderTop: '1px solid #e2e8f0',
+                  bgcolor: '#ffffff',
+                  p: 3,
+                  mt: 'auto',
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  Page {currentPage} of 5 • Showing {filteredShows.length} results
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    {[...Array(5)].map((_, idx) => (
+                      <Button
+                        key={idx}
+                        variant={currentPage === idx + 1 ? "contained" : "text"}
+                        onClick={() => handlePageChange(idx)}
+                        sx={{
+                          minWidth: '40px',
+                          height: '40px',
+                          p: 0,
+                          borderRadius: '10px',
+                          color: currentPage === idx + 1 ? 'white' : '#64748b',
+                          bgcolor: currentPage === idx + 1 ? '#3b82f6' : 'transparent',
+                          '&:hover': {
+                            bgcolor: currentPage === idx + 1 ? '#2563eb' : '#f1f5f9',
+                          },
+                        }}
+                      >
+                        {idx + 1}
+                      </Button>
+                    ))}
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
+                    <IconButton
+                      onClick={() => handlePageChange(page - 1)}
+                      disabled={page === 0}
                       sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        borderTop: `1px solid ${colors.border}`,
-                        bgcolor: colors.background.paper,
-                        p: 3,
+                        width: 40,
+                        height: 40,
+                        borderRadius: '10px',
+                        bgcolor: '#f8fafc',
+                        '&:hover:not(:disabled)': {
+                          bgcolor: '#f1f5f9',
+                        },
                       }}
                     >
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Page {currentPage} of 5 • Showing {filteredShows.length} results
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          {[...Array(5)].map((_, idx) => (
-                            <PaginationButton
-                              key={idx}
-                              active={currentPage === idx + 1}
-                              onClick={() => handlePageChange(idx)}
-                              variant={currentPage === idx + 1 ? "contained" : "text"}
-                              disableElevation
-                            >
-                              {idx + 1}
-                            </PaginationButton>
-                          ))}
-                        </Box>
-                        <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
-                          <IconButton
-                            onClick={() => handlePageChange(page - 1)}
-                            disabled={page === 0}
-                            sx={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: '10px',
-                              bgcolor: colors.background.paper,
-                              transition: transitions.default,
-                              '&:hover:not(:disabled)': {
-                                bgcolor: alpha(colors.primary.main, 0.1),
-                                transform: 'translateY(-1px)',
-                              },
-                            }}
-                          >
-                            <ChevronLeftIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => handlePageChange(page + 1)}
-                            disabled={page === 4}
-                            sx={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: '10px',
-                              bgcolor: colors.background.paper,
-                              transition: transitions.default,
-                              '&:hover:not(:disabled)': {
-                                bgcolor: alpha(colors.primary.main, 0.1),
-                                transform: 'translateY(-1px)',
-                              },
-                            }}
-                          >
-                            <ChevronRightIcon />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </Box>
-                  )}
+                      <ChevronLeftIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handlePageChange(page + 1)}
+                      disabled={page === 4}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '10px',
+                        bgcolor: '#f8fafc',
+                        '&:hover:not(:disabled)': {
+                          bgcolor: '#f1f5f9',
+                        },
+                      }}
+                    >
+                      <ChevronRightIcon />
+                    </IconButton>
+                  </Box>
                 </Box>
-              </Fade>
+              </Box>
             )}
-          </Paper>
-    
-          {/* Details Modal */}
-          <ShowDetailsModal
-            show={selectedShowForModal}
-            onClose={() => setSelectedShowForModal(null)}
-          />
-        </Box>
-      );
-    };
-    
-    export default MainContent;
+          </Box>
+        )}
+      </Paper>
+
+      {/* Details Modal */}
+      <ShowDetailsModal
+        show={selectedShowForModal}
+        onClose={() => setSelectedShowForModal(null)}
+      />
+    </Box>
+  );
+};
+
+export default MainContent;

@@ -49,3 +49,7 @@ export interface ShowDetailsModalProps {
   show: Show | null;
   onClose: () => void;
 }
+
+export interface StatusBadgeProps {
+  status: 'Running' | string;  // Add other possible status values if known
+}

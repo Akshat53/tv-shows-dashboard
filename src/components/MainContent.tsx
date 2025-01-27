@@ -351,17 +351,10 @@ const MainContent: React.FC<MainContentProps> = ({
                             </Link>
                           )}
                         </StyledTableCell>
-                        <StyledTableCell
-                          align="right"
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                            gap: 1  
-                          }}
-                        >
+                        <StyledTableCell align="right">
                           <Tooltip title="Edit Show">
                             <ActionButton
-                              onClick={() => onShowSelect(show)}
+                              onClick={() => onShowSelect(show)}  
                               size="small"
                             >
                               <EditIcon sx={{ fontSize: 18 }} />
@@ -369,7 +362,7 @@ const MainContent: React.FC<MainContentProps> = ({
                           </Tooltip>
                           <Tooltip title="View Details">
                             <ActionButton
-                              onClick={() => setSelectedShowForModal(show)}
+                              onClick={() => setSelectedShowForModal(show)} // This opens the details modal
                               size="small"
                             >
                               <VisibilityIcon sx={{ fontSize: 18 }} />

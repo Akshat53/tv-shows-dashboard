@@ -43,3 +43,7 @@
   .animate-slide-in {
     animation: slideIn 0.3s ease-out forwards;
   }
+  .d-flex{
+    display: flex !important;
+    
+  }

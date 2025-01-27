@@ -39,6 +39,7 @@ import { Show, MainContentProps } from '../types';
 import EmptyState from './EmptyState';
 import _ from 'lodash';
 import { ActionButton, GenreChip, StatusBadge, StyledTableCell } from '../theme/constants';
+import "../styles/animations.css"
 
 const MainContent: React.FC<MainContentProps> = ({
   shows,
@@ -352,6 +353,7 @@ const MainContent: React.FC<MainContentProps> = ({
                           )}
                         </StyledTableCell>
                         <StyledTableCell align="right">
+                          <div className='d-flex'>
                           <Tooltip title="Edit Show">
                             <ActionButton
                               onClick={() => onShowSelect(show)}  
@@ -368,6 +370,7 @@ const MainContent: React.FC<MainContentProps> = ({
                               <VisibilityIcon sx={{ fontSize: 18 }} />
                             </ActionButton>
                           </Tooltip>
+                          </div>
                         </StyledTableCell>
                       </TableRow>
                     ))

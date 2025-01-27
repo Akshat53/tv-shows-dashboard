@@ -14,7 +14,7 @@ import {
   TableRow,
   Avatar,
   Link,
-  styled,
+
   InputAdornment,
   Tooltip,
   Alert,
@@ -35,101 +35,33 @@ import {
 } from '@mui/icons-material';
 import ShowDetailsModal from './ShowDetailsModal';
 import LoadingIndicator from './LoadingIndicator';
-import { Show, MainContentProps, StatusBadgeProps } from '../types';
-
-// Styled Components
-const StyledTableCell = styled(TableCell)(() => ({
-  padding: '16px 20px',
-  borderBottom: '1px solid #e2e8f0',
-  '&.MuiTableCell-head': {
-    backgroundColor: '#ffffff',
-    fontSize: '13px',
-    fontWeight: 600,
-    color: '#64748b',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    position: 'sticky',
-    top: 0,
-    zIndex: 2,
-  },
-  '&:first-of-type': {
-    paddingLeft: '24px',
-  },
-  '&:last-of-type': {
-    paddingRight: '24px',
-  },
-}));
-
-const StatusBadge = styled('div')<StatusBadgeProps>(({ status }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: '6px 12px',
-  borderRadius: '20px',
-  fontSize: '13px',
-  fontWeight: 600,
-  lineHeight: 1,
-  width: 'fit-content',
-  ...(status === 'Running' ? {
-    backgroundColor: '#ecfdf5',
-    color: '#059669',
-    border: '1px solid #a7f3d0',
-  } : {
-    backgroundColor: '#f1f5f9',
-    color: '#475569',
-    border: '1px solid #e2e8f0',
-  }),
-}));
-
-const GenreChip = styled('span')({
-  display: 'inline-block',
-  padding: '4px 12px',
-  borderRadius: '16px',
-  fontSize: '13px',
-  backgroundColor: '#f8fafc',
-  color: '#3b82f6',
-  border: '1px solid #e2e8f0',
-  marginRight: '6px',
-  marginBottom: '4px',
-  transition: 'all 0.2s',
-  '&:hover': {
-    backgroundColor: '#f0f9ff',
-    borderColor: '#93c5fd',
-  },
-});
-
-const ActionButton = styled(IconButton)({
-  width: 34,
-  height: 34,
-  borderRadius: 8,
-  marginLeft: 8,
-  backgroundColor: '#f8fafc',
-  '&:hover': {
-    backgroundColor: '#f1f5f9',
-  },
-});
+import { Show, MainContentProps } from '../types';
+import EmptyState from './EmptyState';
+import _ from 'lodash';
+import { ActionButton, GenreChip, StatusBadge, StyledTableCell } from '../theme/constants';
 
 const MainContent: React.FC<MainContentProps> = ({
+  shows,
+  setShows,
   onShowSelect,
   handleDrawerToggle,
 }) => {
-  const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedShowForModal, setSelectedShowForModal] = useState<Show | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredResults, setFilteredResults] = useState(shows);
 
   const fetchShows = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(`/services/shows?page=${page}`);
-      
       if (!response.ok) {
         throw new Error(`Failed to fetch shows (HTTP ${response.status})`);
       }
-      
       const data = await response.json();
       setShows(data);
     } catch (error) {
@@ -145,9 +77,21 @@ const MainContent: React.FC<MainContentProps> = ({
     fetchShows();
   }, [page]);
 
-  const filteredShows = shows.filter(show =>
-    show.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const filtered = shows.filter(show =>
+        show.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredResults(filtered);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, shows]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -156,7 +100,7 @@ const MainContent: React.FC<MainContentProps> = ({
   };
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       height: '100vh',
       display: 'flex',
       flexDirection: 'column',
@@ -164,8 +108,8 @@ const MainContent: React.FC<MainContentProps> = ({
       minWidth: 0,
     }}>
       {/* Header */}
-      <Box sx={{ 
-        px: 4, 
+      <Box sx={{
+        px: 4,
         py: 3,
         backgroundColor: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
@@ -213,7 +157,7 @@ const MainContent: React.FC<MainContentProps> = ({
       </Box>
 
       {/* Search and Filters */}
-      <Box sx={{ 
+      <Box sx={{
         p: 4,
         display: 'flex',
         gap: 2,
@@ -224,7 +168,7 @@ const MainContent: React.FC<MainContentProps> = ({
           size="small"
           fullWidth
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           sx={{
             maxWidth: { sm: '400px' },
             '& .MuiOutlinedInput-root': {
@@ -289,14 +233,16 @@ const MainContent: React.FC<MainContentProps> = ({
           borderRadius: '16px',
           border: '1px solid #e2e8f0',
           overflow: 'hidden',
+          width: 'auto',
+          minWidth: 0,
         }}
       >
         {loading ? (
           <LoadingIndicator />
         ) : error ? (
           <Box sx={{ p: 3 }}>
-            <Alert 
-              severity="error" 
+            <Alert
+              severity="error"
               action={
                 <Button
                   color="inherit"
@@ -311,6 +257,8 @@ const MainContent: React.FC<MainContentProps> = ({
               {error}
             </Alert>
           </Box>
+        ) : filteredResults.length === 0 ? (
+          <EmptyState />
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <TableContainer sx={{ flex: 1 }}>
@@ -327,7 +275,7 @@ const MainContent: React.FC<MainContentProps> = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredShows.length === 0 ? (
+                  {filteredResults.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7}>
                         <Box sx={{ py: 8, textAlign: 'center' }}>
@@ -342,7 +290,7 @@ const MainContent: React.FC<MainContentProps> = ({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredShows.map((show) => (
+                    filteredResults.map((show) => (
                       <TableRow
                         key={show.id}
                         hover
@@ -403,7 +351,14 @@ const MainContent: React.FC<MainContentProps> = ({
                             </Link>
                           )}
                         </StyledTableCell>
-                        <StyledTableCell align="right">
+                        <StyledTableCell
+                          align="right"
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            gap: 1  
+                          }}
+                        >
                           <Tooltip title="Edit Show">
                             <ActionButton
                               onClick={() => onShowSelect(show)}
@@ -429,7 +384,7 @@ const MainContent: React.FC<MainContentProps> = ({
             </TableContainer>
 
             {/* Pagination */}
-            {filteredShows.length > 0 && (
+            {filteredResults.length > 0 && (
               <Box
                 sx={{
                   display: 'flex',
@@ -442,7 +397,7 @@ const MainContent: React.FC<MainContentProps> = ({
                 }}
               >
                 <Typography variant="body2" color="text.secondary">
-                  Page {currentPage} of 5 • Showing {filteredShows.length} results
+                  Page {currentPage} of 5 • Showing {filteredResults.length} results
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box sx={{ display: 'flex', gap: 1 }}>

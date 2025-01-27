@@ -36,13 +36,20 @@ export interface Show {
 }
 
 export interface MainContentProps {
-  onShowSelect: (show: Show) => void;
+  shows: Show[];
+  setShows: (shows: Show[]) => void;
+  onShowSelect: (show: Show | null) => void;
   handleDrawerToggle: () => void;
 }
-
 export interface RightPaneProps {
   selectedShow: Show | null;
   onClose: () => void;
+  onUpdate: (updatedShow: Show) => void;
+}
+
+export interface FormFieldProps {
+  icon: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export interface ShowDetailsModalProps {
@@ -51,5 +58,6 @@ export interface ShowDetailsModalProps {
 }
 
 export interface StatusBadgeProps {
-  status: 'Running' | string;  // Add other possible status values if known
+  status: 'Running' | string; 
 }
+

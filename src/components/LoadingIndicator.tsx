@@ -44,7 +44,7 @@ const LoadingIndicator: React.FC = () => {
         <TableBody>
           {[...Array(5)].map((_, idx) => (
             <TableRow key={idx}>
-              {/* ... rest of your loading rows ... */}
+              
             </TableRow>
           ))}
         </TableBody>
